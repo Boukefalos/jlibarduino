@@ -1,4 +1,5 @@
-package com.github.boukefalos.tm1638;
+package com.github.boukefalos.arduino.port;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,12 +16,11 @@ import purejavacomm.SerialPort;
 import purejavacomm.SerialPortEvent;
 import purejavacomm.SerialPortEventListener;
 import purejavacomm.UnsupportedCommOperationException;
-import tm1638.Tm1638.Echo;
 import base.work.Listen;
 
-import com.github.boukefalos.tm1638.exception.ArduinoException;
+import com.github.boukefalos.arduino.exception.ArduinoException;
  
-public class Arduino implements SerialPortEventListener {
+public class Port implements SerialPortEventListener {
 	public static final int BUFFER_SIZE = 1024;
     public static final int TIME_OUT = 1000;
     public static final String PORT_NAMES[] = {
@@ -31,35 +31,37 @@ public class Arduino implements SerialPortEventListener {
         "COM3",         // Windows
     };
 
-	protected static Logger logger = LoggerFactory.getLogger(Arduino.class);
-	protected static Arduino arduino;
+	protected static Logger logger = LoggerFactory.getLogger(Port.class);
+	protected static Port port;
 
 	protected int bufferSize;
-    protected SerialPort port = null;
+    protected SerialPort serialPort = null;
     protected InputStream inputStream = null;
     protected ArrayList<Listen<Object>> listenList = new ArrayList<Listen<Object>>();
 
-    protected Arduino(int bufferSize) {
+    protected Port() {}
+
+    protected Port(int bufferSize) {
     	this.bufferSize = bufferSize;
     }
 
 	public void register(Listen<Object> listen) {
         listenList.add(listen);
 	}
-	
+
 	public void remove(Listen<Object> listen) {
 		listenList.remove(listen);
 	}
 
-    public static Arduino getInstance() {
+    public static Port getInstance() {
     	return getInstance(BUFFER_SIZE);
     }
 
-    public static Arduino getInstance(int bufferSize) {
-    	if (arduino == null) {
-    		arduino = new Arduino(bufferSize);
+    public static Port getInstance(int bufferSize) {
+    	if (port == null) {
+    		port = new Port(bufferSize);
     	}
-    	return arduino;
+    	return port;
     }
 
     protected void connect() throws ArduinoException {
@@ -72,17 +74,17 @@ public class Arduino implements SerialPortEventListener {
                 for ( String portName: PORT_NAMES) {
                     if (portid.getName().equals(portName) || portid.getName().contains(portName)) {
                         try {
-                        	port = (SerialPort) portid.open("", TIME_OUT);
-	                        port.setFlowControlMode(
+                        	serialPort = (SerialPort) portid.open("", TIME_OUT);
+	                        serialPort.setFlowControlMode(
 	                        		SerialPort.FLOWCONTROL_XONXOFF_IN + 
 	                        		SerialPort.FLOWCONTROL_XONXOFF_OUT);
-	                        inputStream = port.getInputStream();
-	                        System.out.println( "Connected on port: " + portid.getName());
-	                        port.addEventListener(this);
+	                        inputStream = serialPort.getInputStream();
+	                        System.out.println("Connected on port: " + portid.getName());
+	                        serialPort.addEventListener(this);
 	                    } catch (UnsupportedCommOperationException | PortInUseException | IOException | TooManyListenersException e) {
 	                    	throw new ArduinoException("Failed to connect");
 	                    }
-                        port.notifyOnDataAvailable(true);
+                        serialPort.notifyOnDataAvailable(true);
                         return;
                     }
                 }
@@ -92,47 +94,46 @@ public class Arduino implements SerialPortEventListener {
     }
  
     public void serialEvent(SerialPortEvent event) {
-		try {
-			switch (event.getEventType()) {
-                case SerialPortEvent.DATA_AVAILABLE:
-                	// Where should this be parsed, or should byte[] be passed directly?
-    				Echo echo = Echo.parseDelimitedFrom(inputStream);
-    				System.err.println(echo.getMessage());
-                    for (Listen<Object> listen : listenList) {
-                    	listen.add(echo);
-                    }
-                    break; 
-                default:
-                    break;
-            }
-		} catch (IOException e) {			
-			logger.error("", e);
+		switch (event.getEventType()) {
+		    case SerialPortEvent.DATA_AVAILABLE:
+				byte[] buffer = new byte[bufferSize];
+				try {
+					inputStream.read(buffer);
+					for (Listen<Object> listen : listenList) {
+						listen.add(buffer);
+					}
+				} catch (IOException e) {
+					logger.error("", e);
+				}		    	
+		        break; 
+		    default:
+		        break;
 		}
     }
 
 	public InputStream getInputStream() throws ArduinoException {		
-		if (port == null) {
+		if (serialPort == null) {
 			connect();	
 		}
 		try {
-			return port.getInputStream();
+			return serialPort.getInputStream();
 		} catch (IOException e) {
 			throw new ArduinoException("Failed to get inputstream");
 		}
 	}
 
 	public OutputStream getOutputStream() throws ArduinoException {
-		if (port == null) {
+		if (serialPort == null) {
 			connect();	
 		}
 		try {
-			return port.getOutputStream();
+			return serialPort.getOutputStream();
 		} catch (IOException e) {
 			throw new ArduinoException("Failed to get inputstream");
 		}
 	}
 
 	public void close() {
-		port.close();		
+		serialPort.close();		
 	}
 }

@@ -1,4 +1,4 @@
-package com.github.boukefalos.tm1638.implementation;
+package com.github.boukefalos.arduino.implementation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,12 +7,11 @@ import base.Duplex;
 import base.Receiver;
 import base.work.Listen;
 
-import com.github.boukefalos.tm1638.AbstractTM1638;
-import com.github.boukefalos.tm1638.exception.ArduinoException;
+import com.github.boukefalos.arduino.AbstractArduino;
+import com.github.boukefalos.arduino.exception.ArduinoException;
 
-public class Remote extends AbstractTM1638 implements Receiver {
+public class Remote extends AbstractArduino implements Receiver {
 	protected Duplex duplex;
-	protected ArrayList<Listen<Object>> listenList;
 
 	public Remote(Duplex duplex) {
 		this.duplex = duplex;

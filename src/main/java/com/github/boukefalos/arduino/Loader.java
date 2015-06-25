@@ -1,4 +1,4 @@
-package com.github.boukefalos.tm1638;
+package com.github.boukefalos.arduino;
 
 import java.util.Properties;
 
@@ -10,30 +10,32 @@ import org.picocontainer.parameters.ConstantParameter;
 import base.exception.LoaderException;
 import base.loader.AbstractLoader;
 
-import com.github.boukefalos.tm1638.exception.ArduinoException;
-import com.github.boukefalos.tm1638.implementation.Local;
-import com.github.boukefalos.tm1638.implementation.Remote;
+import com.github.boukefalos.arduino.exception.ArduinoException;
+import com.github.boukefalos.arduino.implementation.Local;
+import com.github.boukefalos.arduino.implementation.Remote;
 
 public class Loader extends AbstractLoader<Loader> {
-    protected static final String PROPERTIES_FILE = "TM1638.properties";
+    protected static final String PROPERTIES_FILE = "arduino.properties";
 
-	public Loader(Properties properties) throws LoaderException {
-		super();
+    public Loader(Properties properties) throws LoaderException {
+    	this(Local.class, Remote.class, Server.class, properties);
+    }
 
+	public Loader(Class<?> localClass, Class<?> remoteClass, Class<?> serverClass, Properties properties) throws LoaderException {
 		/* Add implementation */
 		switch (properties.getProperty("implementation")) {
 			case "local":
-				pico.addComponent(TM1638.class, Local.class);
+				pico.addComponent(localClass);
 				break;				
 			case "remote":
-				pico.addComponent(TM1638.class, Remote.class);
+				pico.addComponent(remoteClass);
 
 				/* Add remote duplex implementation */
 				try {
-					String protocol = properties.getOrDefault("server.protocol", "tcp").toString();
+					String protocol = properties.getOrDefault("protocol", "tcp").toString();
 					String implementation = properties.getOrDefault("tcp.implementation", "socket").toString();
 					String host = properties.getProperty("remote.host");
-					int port = Integer.valueOf(properties.getProperty("remote.port"));
+					int port = Integer.valueOf(properties.getProperty("remote.port"));					
 					addClientDuplex(protocol, implementation, host, port);
 				} catch (NumberFormatException e) {
 					throw new LoaderException("Failed to parse remote.port");
@@ -44,7 +46,7 @@ public class Loader extends AbstractLoader<Loader> {
 		/* Add server */
 		if (properties.getProperty("server") != null) {
 			boolean direct = Boolean.parseBoolean(properties.getOrDefault("server.direct", Server.DIRECT).toString());
-			pico.addComponent(Server.class, Server.class, new Parameter[] {
+			pico.addComponent(serverClass, serverClass, new Parameter[] {
 				new ComponentParameter(),
 				new ComponentParameter(),
 				new ConstantParameter(direct)});
@@ -61,9 +63,9 @@ public class Loader extends AbstractLoader<Loader> {
 		}
 	}
 
-	public TM1638 getTM1638() throws ArduinoException {
+	public Arduino getArduino() throws ArduinoException {
 		try {
-			return pico.getComponent(TM1638.class);
+			return (Arduino) pico.getComponent(Arduino.class);
 		} catch (PicoCompositionException e) {
 			throw new ArduinoException("Failed to load");
 		}

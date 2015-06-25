@@ -1,23 +1,23 @@
-package com.github.boukefalos.tm1638.implementation;
+package com.github.boukefalos.arduino.implementation;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
 import base.work.Listen;
 
-import com.github.boukefalos.tm1638.AbstractTM1638;
-import com.github.boukefalos.tm1638.Arduino;
-import com.github.boukefalos.tm1638.exception.ArduinoException;
+import com.github.boukefalos.arduino.AbstractArduino;
+import com.github.boukefalos.arduino.exception.ArduinoException;
+import com.github.boukefalos.arduino.port.Port;
 
-public class Local extends AbstractTM1638 {
-	protected Arduino arduino;
+public class Local extends AbstractArduino {
+	protected Port arduino;
 	protected OutputStream outputStream;
 
 	public Local() throws Exception {
-		this(Arduino.getInstance());
+		this(Port.getInstance());
 	}
 
-	public Local(Arduino arduino) throws ArduinoException {
+	public Local(Port arduino) throws ArduinoException {
 		this.arduino = arduino;
 		outputStream = arduino.getOutputStream();
 	}

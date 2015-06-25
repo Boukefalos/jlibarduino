@@ -1,4 +1,4 @@
-package com.github.boukefalos.tm1638.exception;
+package com.github.boukefalos.arduino.exception;
 
 import java.io.IOException;
 
