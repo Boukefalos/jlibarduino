@@ -22,15 +22,11 @@ public class ParsingPort extends Port {
 
 	public void serialEvent(SerialPortEvent event) {
 		try {
-			Method m = messageClass.getMethod("parseDelimitedFrom", InputStream.class);
-			Object object = m.invoke(null, inputStream);
+			Method method = messageClass.getMethod("parseDelimitedFrom", InputStream.class);
+			Object object = method.invoke(null, inputStream);
 			for (Listen<Object> listen : listenList) {
 				listen.add(object);
 			}
-		} catch (Exception e) {
-			logger.error("", e);
-		} catch (Throwable e) {
-			logger.error("", e);
-		}
+		} catch (Exception e) {} catch (Throwable e) {} finally {}
 	}
 }

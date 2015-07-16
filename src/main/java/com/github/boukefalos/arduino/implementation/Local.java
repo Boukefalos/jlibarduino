@@ -37,6 +37,7 @@ public class Local extends AbstractArduino {
 	public void send(byte[] buffer) throws ArduinoException {
 		try {
 		outputStream.write(buffer);
+		outputStream.flush();
 		} catch (IOException e) {
 			throw new ArduinoException("Failed to write to arduino");
 		}

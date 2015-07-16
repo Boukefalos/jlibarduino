@@ -68,13 +68,14 @@ public class Port implements SerialPortEventListener {
         CommPortIdentifier portid = null;
         Enumeration<?> portEnum = CommPortIdentifier.getPortIdentifiers();
         while (portEnum.hasMoreElements()) {
-            portid = (CommPortIdentifier)portEnum.nextElement();
+            portid = (CommPortIdentifier) portEnum.nextElement();
             if (portid != null) {              
                 System.out.println("Trying: " + portid.getName());
                 for ( String portName: PORT_NAMES) {
                     if (portid.getName().equals(portName) || portid.getName().contains(portName)) {
                         try {
                         	serialPort = (SerialPort) portid.open("", TIME_OUT);
+                        	serialPort.setSerialPortParams(19200, 8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 	                        serialPort.setFlowControlMode(
 	                        		SerialPort.FLOWCONTROL_XONXOFF_IN + 
 	                        		SerialPort.FLOWCONTROL_XONXOFF_OUT);
