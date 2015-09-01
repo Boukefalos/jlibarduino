@@ -9,19 +9,28 @@ import base.work.Listen;
 import base.worker.Worker;
 
 public abstract class AbstractArduino extends Listen<Object> implements Arduino {
-	public static final int BUFFER_SIZE = 1024;
-	protected Logger logger = LoggerFactory.getLogger(getClass());
-	protected ArrayList<Listen<Object>> listenList;
+    public static final int BUFFER_SIZE = 1024;
+    protected Logger logger = LoggerFactory.getLogger(getClass());
+    protected ArrayList<Listen<Object>> listenList;
 
-	public AbstractArduino() {
-		super(Worker.Type.DIRECT);
-	}
+    public AbstractArduino() {
+        super(Worker.Type.DIRECT);
+        listenList = new ArrayList<Listen<Object>>();
+    }
 
-	public void start() {}
+    public void register(Listen<Object> listen) {
+        listenList.add(listen);        
+    }
 
-	public void stop() {}
+    public void remove(Listen<Object> listen) {
+        listenList.remove(listen);        
+    }
 
-	public void exit() {
-		stop();
-	}
+    public void start() {}
+
+    public void stop() {}
+
+    public void exit() {
+        stop();
+    }
 }
