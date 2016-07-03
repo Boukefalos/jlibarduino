@@ -6,9 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import base.work.Listen;
+import base.work.ReflectiveListen;
 import base.worker.Worker;
 
-public abstract class AbstractArduino extends Listen<Object> implements Arduino {
+public abstract class AbstractArduino extends ReflectiveListen implements Arduino {
     public static final int BUFFER_SIZE = 1024;
     protected Logger logger = LoggerFactory.getLogger(getClass());
     protected ArrayList<Listen<Object>> listenList;
@@ -18,11 +19,11 @@ public abstract class AbstractArduino extends Listen<Object> implements Arduino 
         listenList = new ArrayList<Listen<Object>>();
     }
 
-    public void register(Listen<Object> listen) {
+    public void register(ReflectiveListen listen) {
         listenList.add(listen);        
     }
 
-    public void remove(Listen<Object> listen) {
+    public void remove(ReflectiveListen listen) {
         listenList.remove(listen);        
     }
 
@@ -32,5 +33,9 @@ public abstract class AbstractArduino extends Listen<Object> implements Arduino 
 
     public void exit() {
         stop();
+    }
+
+    public void input(byte[] buffer) {
+        logger.error("Input was not parsed in port!");
     }
 }

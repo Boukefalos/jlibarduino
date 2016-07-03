@@ -7,11 +7,11 @@ import base.Duplex;
 import base.Receiver;
 import base.exception.worker.ActivateException;
 import base.exception.worker.DeactivateException;
-import base.work.Listen;
+import base.work.ReflectiveListen;
 
 import com.github.boukefalos.arduino.exception.ArduinoException;
 
-public class Server extends Listen<Object> implements Control, Receiver {
+public class Server extends ReflectiveListen implements Control, Receiver {
     protected static final boolean DIRECT = false;
 
     protected Arduino arduino;

@@ -28,7 +28,7 @@ public class Port implements SerialPortEventListener {
         "usbdev",       // Linux
         "tty",          // Linux
         "serial",       // Linux
-        "COM3",         // Windows
+        "COM",         // Windows
     };
 
     protected static Logger logger = LoggerFactory.getLogger(Port.class);
@@ -71,7 +71,7 @@ public class Port implements SerialPortEventListener {
             portid = (CommPortIdentifier) portEnum.nextElement();
             if (portid != null) {              
                 System.out.println("Trying: " + portid.getName());
-                for ( String portName: PORT_NAMES) {
+                for (String portName : PORT_NAMES) {
                     if (portid.getName().equals(portName) || portid.getName().contains(portName)) {
                         try {
                             serialPort = (SerialPort) portid.open("", TIME_OUT);
