@@ -83,7 +83,8 @@ public class Port implements SerialPortEventListener {
                             System.out.println("Connected on port: " + portid.getName());
                             serialPort.addEventListener(this);
                         } catch (UnsupportedCommOperationException | PortInUseException | IOException | TooManyListenersException e) {
-                            throw new ArduinoException("Failed to connect");
+                            logger.error("", new ArduinoException("Failed to connect"));
+                            continue;
                         }
                         serialPort.notifyOnDataAvailable(true);
                         return;
